@@ -698,6 +698,16 @@
     // Force scroll to top on load
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
+    window.addEventListener('load', () => window.scrollTo(0, 0));
+
+    // Force video autoplay
+    const vid = document.getElementById('bgVideo');
+    if (vid) {
+      vid.muted = true;
+      vid.play().catch(() => {
+        document.addEventListener('click', () => vid.play(), { once: true });
+      });
+    }
 
     // Nav
     const nav = document.getElementById('mainNav');
