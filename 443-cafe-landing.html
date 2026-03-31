@@ -521,7 +521,9 @@
   <section class="split-section" aria-labelledby="reviews-h">
     <!-- Video Half -->
     <div class="split-video">
-      <video id="bgVideo" src="Coffe vid.mp4" autoplay muted loop playsinline preload="auto"></video>
+      <video id="bgVideo" autoplay muted loop playsinline preload="auto">
+        <source src="coffe-vid.mp4" type="video/mp4">
+      </video>
       <div class="split-video-overlay reveal">
         <p class="video-eyebrow">האווירה שלנו</p>
         <h2 class="video-headline">כל כוס, באהבה.</h2>
@@ -704,8 +706,12 @@
     const vid = document.getElementById('bgVideo');
     if (vid) {
       vid.muted = true;
-      vid.play().catch(() => {
-        document.addEventListener('click', () => vid.play(), { once: true });
+      vid.defaultMuted = true;
+      const tryPlay = () => vid.play().catch(() => {});
+      tryPlay();
+      vid.addEventListener('canplay', tryPlay);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) tryPlay();
       });
     }
 
