@@ -176,6 +176,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      pointer-events: none;
     }
     .split-video::after {
       content: '';
@@ -707,12 +708,17 @@
     if (vid) {
       vid.muted = true;
       vid.defaultMuted = true;
+      vid.setAttribute('muted', '');
+      vid.setAttribute('playsinline', '');
+      vid.setAttribute('autoplay', '');
       const tryPlay = () => vid.play().catch(() => {});
       tryPlay();
       vid.addEventListener('canplay', tryPlay);
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) tryPlay();
-      });
+      vid.addEventListener('loadeddata', tryPlay);
+      // Fallback: play on first any interaction
+      const unlockPlay = () => { tryPlay(); document.removeEventListener('touchstart', unlockPlay); document.removeEventListener('click', unlockPlay); };
+      document.addEventListener('touchstart', unlockPlay, { once: true, passive: true });
+      document.addEventListener('click', unlockPlay, { once: true });
     }
 
     // Nav
