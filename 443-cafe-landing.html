@@ -1,0 +1,742 @@
+<!-- filename: 443-cafe-landing.html -->
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>קפה 443 — נשמה. תשוקה. משפחה.</title>
+  <meta name="description" content="קפה 443 בצומת שילת. פתוח כמעט 24 שעות. קפה מיוחד, אוכל טרי, אווירה אמיתית.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --forest:   #1E1208;
+      --teal:     #B8832A;
+      --cream:    #F5EEE3;
+      --cream-mid:#E2D5C3;
+      --dark:     #110D07;
+      --text:     #241810;
+      --muted:    #8A7060;
+      --ff-d: 'Frank Ruhl Libre', serif;
+      --ff-b: 'Heebo', sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cream:    #1A1208;
+        --cream-mid:#241810;
+        --dark:     #0D0905;
+        --text:     #E8DDD0;
+        --muted:    #9A8470;
+      }
+    }
+
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--ff-b);
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── NAV ──────────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding-top: env(safe-area-inset-top, 0);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .nav.scrolled .nav-inner {
+      background: rgba(30,18,8,0.97);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom-color: rgba(184,131,42,0.18);
+      box-shadow: 0 1px 28px rgba(8,4,0,0.32);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      text-decoration: none; color: #fff;
+    }
+    .logo-svg { width: 32px; height: 32px; flex-shrink: 0; }
+    .nav-wordmark {
+      font-family: var(--ff-d); font-weight: 500;
+      font-size: 1.1rem; color: #fff; letter-spacing: 0;
+    }
+    .nav-phone {
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.02em;
+      padding: 0.4rem 0.9rem; border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.38);
+      color: #fff; background: transparent;
+      text-decoration: none; transition: all 0.2s ease;
+      direction: ltr; /* phone numbers always LTR */
+    }
+    .nav.scrolled .nav-phone { border-color: rgba(184,131,42,0.4); }
+    .nav-phone:active { transform: scale(0.96); }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    .hero {
+      position: relative; min-height: 100dvh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .hero-media { position: absolute; inset: 0; overflow: hidden; }
+    .hero-media img { object-position: center 25%; will-change: transform; }
+    .hero-media::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(160deg, rgba(8,4,0,0.08) 0%, rgba(8,4,0,0.02) 30%, rgba(8,4,0,0.84) 100%);
+    }
+    .hero-body {
+      position: relative; z-index: 1;
+      padding: 0 1.5rem calc(2.75rem + env(safe-area-inset-bottom, 0));
+    }
+    .hero-kicker {
+      font-size: 0.72rem; font-weight: 400; letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.48); margin-bottom: 1rem;
+    }
+    .rating-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(184,131,42,0.12); border: 1px solid rgba(184,131,42,0.28);
+      border-radius: 100px; padding: 0.45rem 0.875rem;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-bottom: 1.5rem;
+    }
+    .rating-stars, .review-stars, .stars { display: flex; gap: 2px; }
+    .rating-stars svg, .review-stars svg, .stars svg { width: 11px; height: 11px; }
+    .rating-num { font-family: var(--ff-d); font-size: 0.875rem; font-weight: 500; color: #fff; }
+    .rating-count { font-size: 0.72rem; color: rgba(255,255,255,0.48); font-weight: 300; }
+    .hero-h1 {
+      font-family: var(--ff-d);
+      font-size: clamp(2.75rem, 11.5vw, 4rem);
+      font-weight: 300; line-height: 1.15;
+      letter-spacing: 0; color: #fff; margin-bottom: 1rem; max-width: 14ch;
+    }
+    .hero-sub {
+      font-size: 1rem; font-weight: 300;
+      color: rgba(255,255,255,0.62); line-height: 1.8;
+      margin-bottom: 1.875rem; max-width: 34ch;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 0.875rem; }
+
+    /* ── BUTTONS ──────────────────────────────────────────── */
+    .btn-teal {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      background: var(--teal); color: #fff; font-family: var(--ff-b);
+      font-size: 0.9rem; font-weight: 500; padding: 0.825rem 1.375rem;
+      border-radius: 100px; text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease;
+    }
+    .btn-teal:hover  { background: #9A6D1E; }
+    .btn-teal:active { transform: scale(0.96); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      background: transparent; color: #fff; font-family: var(--ff-b);
+      font-size: 0.9rem; font-weight: 500; padding: 0.825rem 1.375rem;
+      border-radius: 100px; text-decoration: none; border: 1px solid rgba(255,255,255,0.3);
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-ghost:hover  { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.08); }
+    .btn-ghost:active { transform: scale(0.96); }
+
+    /* ── MARQUEE ──────────────────────────────────────────── */
+    .marquee { background: var(--forest); overflow: hidden; padding: 0.875rem 0; }
+    .marquee-track { display: flex; animation: marquee 22s linear infinite; will-change: transform; }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-unit { display: flex; align-items: center; gap: 1.25rem; flex-shrink: 0; padding-left: 2.5rem; }
+    .m-word { font-family: var(--ff-d); font-weight: 300; font-size: 1rem; color: rgba(244,249,246,0.72); white-space: nowrap; }
+    .m-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+    /* RTL marquee scrolls right-to-left visually — reverse direction */
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(50%); }
+    }
+
+    /* ── SPLIT REVIEWS & VIDEO ────────────────────────────── */
+    .split-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100dvh;
+      background: var(--dark);
+      overflow: hidden;
+    }
+
+    .split-video {
+      position: relative;
+      overflow: hidden;
+    }
+    .split-video video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .split-video::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(8,4,0,0.2), rgba(8,4,0,0.62));
+      pointer-events: none;
+    }
+    /* Fade edge between video and reviews */
+    .split-video::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 100px;
+      z-index: 3;
+      background: linear-gradient(to right, var(--forest), transparent);
+      pointer-events: none;
+    }
+    .split-video-overlay {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1rem;
+      right: 1rem;
+      z-index: 5;
+      color: #fff;
+    }
+    .video-eyebrow {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.55); margin-bottom: 0.3rem;
+    }
+    .video-headline {
+      font-family: var(--ff-d); font-size: clamp(0.9rem, 3vw, 1.5rem);
+      font-weight: 300; color: #fff; line-height: 1.3;
+    }
+
+    .split-content {
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--forest);
+      position: relative;
+      overflow: hidden;
+      gap: 1.25rem;
+    }
+    @media (min-width: 900px) {
+      .split-content { padding: 3.5rem 2.5rem; gap: 1.5rem; }
+    }
+
+    /* Rating hero */
+    .rating-hero {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 1.25rem;
+    }
+    .rating-hero-num {
+      font-family: var(--ff-d);
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .rating-hero-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .rating-hero-stars { display: flex; gap: 3px; }
+    .rating-hero-stars svg { width: 13px; height: 13px; }
+    .rating-hero-count {
+      font-size: 0.68rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.02em;
+    }
+
+    /* Static reviews stack */
+    .reviews-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+    }
+
+    /* Review Card — static */
+    .review-card {
+      padding: 0.875rem 1rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      direction: rtl;
+      text-align: right;
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+    .review-card:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(184,131,42,0.35);
+    }
+
+    .split-content .eyebrow { color: var(--teal); font-size: 0.68rem; }
+    .split-section-title {
+      font-family: var(--ff-d);
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1.3;
+      margin-top: 0.25rem;
+    }
+
+    /* Google CTA link */
+    .reviews-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--teal);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(184,131,42,0.3);
+      padding-bottom: 1px;
+      align-self: flex-start;
+      transition: color 0.18s ease, border-color 0.18s ease;
+      direction: rtl;
+    }
+    .reviews-cta:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    /* ── ABOUT ────────────────────────────────────────────── */
+    .about { padding: 4.5rem 1.5rem 3.5rem; position: relative; overflow: hidden; }
+    .about-deco {
+      position: absolute; top: 1rem; right: -0.25rem; /* RTL: right side */
+      font-family: var(--ff-d); font-size: clamp(7rem, 32vw, 10rem);
+      font-weight: 700; color: var(--teal); opacity: 0; line-height: 1;
+      pointer-events: none; user-select: none; letter-spacing: -0.02em;
+      transform: scale(0.9);
+      transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .about-deco.visible { opacity: 0.09; transform: scale(1); }
+    .eyebrow {
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em;
+      color: var(--teal); margin-bottom: 1.125rem;
+    }
+    .about-h2 {
+      font-family: var(--ff-d); font-size: clamp(1.875rem, 8vw, 2.625rem);
+      font-weight: 400; line-height: 1.3; color: var(--text);
+      margin-bottom: 1.375rem; max-width: 18ch;
+    }
+    .about-h2 strong { font-weight: 700; color: var(--forest); }
+    .about-p {
+      font-size: 1rem; font-weight: 300;
+      color: var(--muted); line-height: 1.9; max-width: 38ch;
+    }
+
+    /* ── PHOTO STRIP ──────────────────────────────────────── */
+    .photo-strip {
+      display: grid; grid-template-columns: 3fr 2fr;
+      gap: 8px; height: 220px; padding: 0 1.5rem; margin-bottom: 3.5rem;
+    }
+    .ps-a, .ps-b { border-radius: 14px; overflow: hidden; }
+
+
+    .review-stars { display: flex; gap: 2px; margin-top: 0.2rem; }
+    .review-stars svg { width: 9px; height: 9px; }
+
+    .review-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+    }
+    .review-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(184,131,42,0.15);
+      border: 1px solid rgba(184,131,42,0.25);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .review-avatar svg { width: 20px; height: 20px; }
+    .review-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .review-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.2;
+    }
+    .review-body {
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.65);
+      font-weight: 400;
+      font-family: var(--ff-b);
+    }
+
+    /* ── HOURS & INFO ─────────────────────────────────────── */
+    .info { padding: 3rem 1.5rem; border-top: 1px solid var(--cream-mid); }
+    .info h2 {
+      font-family: var(--ff-d); font-size: clamp(1.875rem, 8vw, 2.625rem);
+      font-weight: 400; line-height: 1.3; margin-top: 0.875rem; margin-bottom: 2rem;
+    }
+    .info-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .info-label {
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em;
+      color: var(--teal); margin-bottom: 0.75rem;
+    }
+    .hours-list { display: flex; flex-direction: column; gap: 0.375rem; }
+    .hours-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 0.9rem; font-weight: 300;
+      opacity: 0; transform: translateX(16px); /* RTL: slides from left */
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .hours-row.visible { opacity: 1; transform: translateX(0); }
+    .hours-day { color: var(--muted); }
+    .hours-time { color: var(--text); font-weight: 400; direction: ltr; }
+    .hours-time.open24 { color: var(--teal); font-weight: 600; }
+    .info-val {
+      font-family: var(--ff-d); font-weight: 300;
+      font-size: 1rem; line-height: 1.75; color: var(--text);
+    }
+    .info-sub {
+      font-size: 0.875rem; color: var(--muted);
+      margin-top: 0.375rem; line-height: 1.6; font-weight: 300;
+    }
+    .info-phone {
+      display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1.25rem;
+      font-size: 0.9rem; font-weight: 500; color: var(--forest);
+      text-decoration: none; border-bottom: 1px solid var(--teal); padding-bottom: 1px;
+      direction: ltr;
+    }
+    .btn-waze {
+      display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem;
+      font-family: var(--ff-b); font-size: 0.875rem; font-weight: 500;
+      color: #fff; background: #33CCFF; text-decoration: none;
+      padding: 0.6rem 1.1rem; border-radius: 100px;
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), background 0.18s ease;
+    }
+    .btn-waze:hover  { background: #00AADD; }
+    .btn-waze:active { transform: scale(0.96); }
+
+    /* ── FOOTER ───────────────────────────────────────────── */
+    .footer {
+      background: var(--forest);
+      padding: 2.5rem 1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0));
+      display: flex; flex-direction: column; align-items: center; gap: 0.875rem; text-align: center;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 0.5rem; color: rgba(244,249,246,0.65); }
+    .footer-logo svg { width: 26px; height: 26px; }
+    .footer-brand { font-family: var(--ff-d); font-size: 1rem; font-weight: 300; color: rgba(244,249,246,0.65); }
+    .footer-tagline { font-size: 0.8rem; font-weight: 300; color: rgba(184,131,42,0.55); letter-spacing: 0.04em; }
+    .footer-copy { font-size: 0.68rem; color: rgba(244,249,246,0.2); }
+
+    /* ── REVEAL SYSTEM ────────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.72s cubic-bezier(0.16,1,0.3,1), transform 0.72s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal-left {
+      opacity: 0; transform: translateX(32px); /* RTL: from left = positive X */
+      transition: opacity 0.68s cubic-bezier(0.16,1,0.3,1), transform 0.68s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal-right {
+      opacity: 0; transform: translateX(-32px); /* RTL: from right = negative X */
+      transition: opacity 0.68s cubic-bezier(0.16,1,0.3,1), transform 0.68s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal-scale {
+      opacity: 0; transform: scale(0.9);
+      transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), transform 0.75s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible, .reveal-left.visible, .reveal-right.visible, .reveal-scale.visible {
+      opacity: 1; transform: none;
+    }
+    .d1 { transition-delay: 0.08s; }
+    .d2 { transition-delay: 0.17s; }
+    .d3 { transition-delay: 0.26s; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="קפה 443">
+        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="29" height="29" rx="14.5" stroke="currentColor" stroke-width="1.25"/>
+          <line x1="16" y1="25.5" x2="16" y2="17.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          <path d="M16 18C14.2 13.8 9.5 13.8 9.5 17.5C9.5 20.2 12.5 21.8 16 19.8C19.5 21.8 22.5 20.2 22.5 17.5C22.5 13.8 17.8 13.8 16 18Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" fill="none"/>
+          <path d="M16 21C15 19.2 12.5 19.2 12.5 21" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span class="nav-wordmark">קפה 443</span>
+      </a>
+      <a href="tel:0526403443" class="nav-phone">052-640-3443</a>
+    </div>
+  </nav>
+
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-media">
+      <img id="heroImg" src="images/images443-exterior.jpg.png"
+        alt="מרפסת קפה 443 בצומת שילת" loading="eager" fetchpriority="high">
+    </div>
+    <div class="hero-body">
+      <p class="hero-kicker">צומת שילת &nbsp;·&nbsp; נשמה. תשוקה. משפחה.</p>
+      <h1 class="hero-h1">קפה כמו שצריך.</h1>
+      <p class="hero-sub">בית קפה באווירה משפחתית, אוכל אמיתי וקפה שווה עצירה — ביום ובלילה.</p>
+      <div class="hero-actions">
+        <a href="#info" class="btn-teal">שעות ומיקום</a>
+        <a href="tel:0526403443" class="btn-ghost">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <path d="M2 1.5h2.5L5.8 4.5 4.5 6a8 8 0 0 0 2.5 2.5L8.5 7 11.5 8.3v2.7c0 .5-.4.9-.9.9C3.8 11.9 1.1 7.2 1.1 2.4a.9.9 0 0 1 .9-.9Z" stroke="rgba(255,255,255,0.75)" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+          התקשרו
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-unit"><span class="m-word">נשמה</span><span class="m-dot"></span><span class="m-word">תשוקה</span><span class="m-dot"></span><span class="m-word">משפחה</span><span class="m-dot"></span><span class="m-word">קפה 443</span><span class="m-dot"></span></div>
+      <div class="marquee-unit"><span class="m-word">נשמה</span><span class="m-dot"></span><span class="m-word">תשוקה</span><span class="m-dot"></span><span class="m-word">משפחה</span><span class="m-dot"></span><span class="m-word">קפה 443</span><span class="m-dot"></span></div>
+      <div class="marquee-unit"><span class="m-word">נשמה</span><span class="m-dot"></span><span class="m-word">תשוקה</span><span class="m-dot"></span><span class="m-word">משפחה</span><span class="m-dot"></span><span class="m-word">קפה 443</span><span class="m-dot"></span></div>
+      <div class="marquee-unit"><span class="m-word">נשמה</span><span class="m-dot"></span><span class="m-word">תשוקה</span><span class="m-dot"></span><span class="m-word">משפחה</span><span class="m-dot"></span><span class="m-word">קפה 443</span><span class="m-dot"></span></div>
+    </div>
+  </div>
+
+
+  <!-- SPLIT SECTION (VIDEO + REVIEWS) -->
+  <section class="split-section" aria-labelledby="reviews-h">
+    <!-- Video Half -->
+    <div class="split-video">
+      <video id="bgVideo" src="Coffe vid.mp4" autoplay muted loop playsinline preload="auto"></video>
+      <div class="split-video-overlay reveal">
+        <p class="video-eyebrow">האווירה שלנו</p>
+        <h2 class="video-headline">כל כוס, באהבה.</h2>
+      </div>
+    </div>
+
+    <!-- Reviews Half -->
+    <div class="split-content">
+
+      <!-- Header -->
+      <div class="split-section-header reveal">
+        <p class="eyebrow">ביקורות גוגל</p>
+        <p class="split-section-title" id="reviews-h">מה אומרים עלינו</p>
+      </div>
+
+      <!-- Rating Hero -->
+      <div class="rating-hero reveal d1">
+        <span class="rating-hero-num">4.8</span>
+        <div class="rating-hero-meta">
+          <div class="rating-hero-stars">
+            <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+            <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+            <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+            <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+            <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+          </div>
+          <span class="rating-hero-count">+200 ביקורות</span>
+        </div>
+      </div>
+
+      <!-- Static Reviews Stack -->
+      <div class="reviews-stack">
+
+        <div class="review-card reveal d1">
+          <div class="review-card-top">
+            <!-- אישה -->
+            <div class="review-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="7.5" r="3.5" fill="#B8832A" opacity="0.9"/>
+                <path d="M6 19.5c0-3.314 2.686-5.5 6-5.5s6 2.186 6 5.5" stroke="#B8832A" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+                <path d="M9.5 16.5 Q12 19 14.5 16.5" stroke="#B8832A" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="review-info">
+              <span class="review-name">נועה הלוי</span>
+              <div class="review-stars">
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="review-body">נקי, מסודר, שירות נעים, מוצרים איכותיים — אי אפשר לבקש יותר מזה.</p>
+        </div>
+
+        <div class="review-card reveal d2">
+          <div class="review-card-top">
+            <!-- גבר -->
+            <div class="review-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="7.5" r="3.5" fill="#B8832A" opacity="0.9"/>
+                <path d="M6 19.5c0-3.314 2.686-5.5 6-5.5s6 2.186 6 5.5" stroke="#B8832A" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+              </svg>
+            </div>
+            <div class="review-info">
+              <span class="review-name">יוסי כהן</span>
+              <div class="review-stars">
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="review-body">עוצרים כאן כל פעם שעוברים בכביש. אווירה ביתית, קפה מעולה, ושירות שתמיד עם חיוך.</p>
+        </div>
+
+        <div class="review-card reveal d3">
+          <div class="review-card-top">
+            <!-- גבר -->
+            <div class="review-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="7.5" r="3.5" fill="#B8832A" opacity="0.9"/>
+                <path d="M6 19.5c0-3.314 2.686-5.5 6-5.5s6 2.186 6 5.5" stroke="#B8832A" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.9"/>
+              </svg>
+            </div>
+            <div class="review-info">
+              <span class="review-name">דוד אוחנה</span>
+              <div class="review-stars">
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+                <svg viewBox="0 0 12 12" fill="#C49A3C"><path d="M6 1l1.4 2.8L10.5 4 8.3 6.1l.5 3.1L6 7.7l-2.8 1.5.5-3.1L1.5 4l3.1-.2z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="review-body">קפה מצוין ושירות מהיר. תמיד כיף לעצור כאן בדרך. האווירה פשוט נהדרת.</p>
+        </div>
+
+      </div>
+
+      <a href="https://g.co/kgs/443cafe" class="reviews-cta reveal">
+        לכל הביקורות בגוגל
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M2.5 6h7M6 2.5L9.5 6 6 9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+
+    </div>
+  </section>
+
+
+  <!-- HOURS & INFO -->
+  <div class="info" id="info">
+    <p class="eyebrow reveal">מצאו אותנו</p>
+    <h2 class="reveal d1">שעות ומיקום.</h2>
+    <div class="info-cols">
+      <div>
+        <p class="info-label reveal d1">שעות פתיחה</p>
+        <div class="hours-list">
+          <div class="hours-row" style="transition-delay:0.10s"><span class="hours-day">א׳ – ד׳</span><span class="hours-time">05:30 – 02:30</span></div>
+          <div class="hours-row" style="transition-delay:0.20s"><span class="hours-day">יום חמישי</span><span class="hours-time">05:30 – 00:00</span></div>
+          <div class="hours-row" style="transition-delay:0.30s"><span class="hours-day">יום שישי</span><span class="hours-time open24">פתוח 24 שעות</span></div>
+          <div class="hours-row" style="transition-delay:0.40s"><span class="hours-day">שבת</span><span class="hours-time open24">פתוח 24 שעות</span></div>
+        </div>
+      </div>
+      <div class="reveal-right d2">
+        <p class="info-label">כתובת</p>
+        <p class="info-val">תחנת סונול<br>צומת שילת</p>
+        <p class="info-sub">מחוז המרכז<br>ישראל</p>
+        <a href="tel:0526403443" class="info-phone">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M1.8 1.5h2.3L5.3 4 4.2 5.3a7.4 7.4 0 0 0 2.3 2.3L7.8 6.5 10.5 7.7v2.5c0 .4-.4.8-.8.8C2.8 11 1 7.2 1 2.3c0-.4.4-.8.8-.8Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+          </svg>
+          052-640-3443
+        </a>
+        <a href="https://waze.com/ul?q=%D7%AA%D7%97%D7%A0%D7%AA+%D7%A1%D7%95%D7%A0%D7%95%D7%9C+%D7%A6%D7%95%D7%9E%D7%AA+%D7%A9%D7%99%D7%9C%D7%AA&navigate=yes" target="_blank" rel="noopener" class="btn-waze" aria-label="נווט לקפה 443 בוויז">
+          נווט בוויז
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <circle cx="16" cy="13" r="10" fill="#33CCFF" stroke="#00AADD" stroke-width="1.5"/>
+            <circle cx="12.5" cy="18.5" r="2.2" fill="#fff"/>
+            <circle cx="19.5" cy="18.5" r="2.2" fill="#fff"/>
+            <circle cx="13" cy="11" r="2" fill="#1A1A18"/>
+            <circle cx="19" cy="11" r="2" fill="#1A1A18"/>
+            <path d="M12 14.5 Q16 17.5 20 14.5" stroke="#1A1A18" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="29" height="29" rx="14.5" stroke="currentColor" stroke-width="1.25"/>
+        <line x1="16" y1="25.5" x2="16" y2="17.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M16 18C14.2 13.8 9.5 13.8 9.5 17.5C9.5 20.2 12.5 21.8 16 19.8C19.5 21.8 22.5 20.2 22.5 17.5C22.5 13.8 17.8 13.8 16 18Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" fill="none"/>
+        <path d="M16 21C15 19.2 12.5 19.2 12.5 21" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="footer-brand">קפה 443</span>
+    </div>
+    <p class="footer-tagline">נשמה · תשוקה · משפחה</p>
+    <p class="footer-copy">© 2026 · צומת שילת</p>
+  </footer>
+
+
+  <script>
+    // Force scroll to top on load
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
+    // Nav
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 36);
+    }, { passive: true });
+
+    // Hero parallax
+    const heroImg = document.getElementById('heroImg');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY < window.innerHeight)
+        heroImg.style.transform = `translateY(${window.scrollY * 0.28}px)`;
+    }, { passive: true });
+
+    // About deco (guard: element may not exist)
+    const aboutDecoEl = document.getElementById('aboutDeco');
+    if (aboutDecoEl) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) aboutDecoEl.classList.add('visible');
+      }, { threshold: 0.1 }).observe(aboutDecoEl);
+    }
+
+    // Scroll reveals
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -28px 0px' });
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale')
+      .forEach(el => obs.observe(el));
+
+    // Hours stagger
+    const hoursRows = document.querySelectorAll('.hours-row');
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) hoursRows.forEach(r => r.classList.add('visible'));
+    }, { threshold: 0.2 }).observe(document.querySelector('.hours-list'));
+
+    // Carousel logic removed — replaced by CSS Marquee
+  </script>
+
+</body>
+</html>

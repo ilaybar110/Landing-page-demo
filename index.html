@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verdant — Preserve What Remains</title>
+
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,300;1,9..144,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── DESIGN TOKENS ─────────────────────────────────── */
+    :root {
+      --canvas:       #F4EFE6;
+      --canvas-2:     #EDE6D8;
+      --ink:          #1A1A18;
+      --ink-muted:    #5A5750;
+      --forest:       #1C3D2E;
+      --forest-mid:   #2D5A41;
+      --moss:         #4A7A5C;
+      --leaf:         #7BAE8A;
+      --sage:         #A8C4A4;
+      --amber:        #C8955A;
+      --amber-light:  #E4B87A;
+      --cream:        #F9F5ED;
+      --white:        #FDFCF9;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body:    'Instrument Serif', Georgia, serif;
+      --font-label:   system-ui, -apple-system, sans-serif;
+
+      --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out:  cubic-bezier(0.65, 0, 0.35, 1);
+
+      --radius-sm:    6px;
+      --radius-md:    12px;
+      --radius-lg:    24px;
+      --radius-xl:    40px;
+
+      --shadow-soft:  0 2px 24px rgba(28, 61, 46, 0.10);
+      --shadow-card:  0 8px 48px rgba(28, 61, 46, 0.12);
+    }
+
+    /* ─── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { border: none; background: none; cursor: pointer; font: inherit; }
+
+    /* ─── SCROLLBAR ──────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--canvas-2); }
+    ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 3px; }
+
+    /* ─── UTILITY ────────────────────────────────────────── */
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    .container { width: min(100%, 1280px); margin-inline: auto; padding-inline: clamp(24px, 5vw, 80px); }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-label); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--forest); background: rgba(75, 122, 92, 0.12);
+      padding: 6px 14px; border-radius: 100px;
+    }
+    .tag::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--moss); flex-shrink: 0; }
+
+    /* ─── ANIMATIONS ─────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes lineGrow {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+    @keyframes counterPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.6; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.35s; }
+    .reveal-delay-4 { transition-delay: 0.5s; }
+
+    /* ─── NAVIGATION ─────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 20px 0;
+      transition: background 0.4s var(--ease-out), backdrop-filter 0.4s, padding 0.4s;
+    }
+    .nav.scrolled {
+      background: rgba(244, 239, 230, 0.85);
+      backdrop-filter: blur(20px) saturate(160%);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(28, 61, 46, 0.08);
+    }
+    .nav__inner {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav__logo {
+      font-family: var(--font-display);
+      font-size: 22px; font-weight: 500;
+      color: var(--forest);
+      letter-spacing: -0.02em;
+    }
+    .nav__logo span { font-style: italic; color: var(--moss); }
+    .nav__links {
+      display: flex; align-items: center; gap: 36px;
+      list-style: none;
+    }
+    .nav__links a {
+      font-family: var(--font-label); font-size: 13px; font-weight: 500;
+      color: var(--ink-muted);
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav__links a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0; right: 0;
+      height: 1px; background: var(--moss);
+      transform: scaleX(0); transform-origin: right;
+      transition: transform 0.3s var(--ease-out);
+    }
+    .nav__links a:hover { color: var(--forest); }
+    .nav__links a:hover::after { transform: scaleX(1); transform-origin: left; }
+    .nav__cta {
+      font-family: var(--font-label); font-size: 13px; font-weight: 600;
+      color: var(--white); background: var(--forest);
+      padding: 10px 22px; border-radius: 100px;
+      transition: background 0.3s, transform 0.3s var(--ease-spring), box-shadow 0.3s;
+      letter-spacing: 0.01em;
+    }
+    .nav__cta:hover {
+      background: var(--forest-mid);
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(28, 61, 46, 0.25);
+    }
+    .nav__mobile-toggle { display: none; flex-direction: column; gap: 5px; padding: 4px; }
+    .nav__mobile-toggle span { display: block; width: 22px; height: 2px; background: var(--forest); border-radius: 2px; transition: all 0.3s; }
+
+    /* ─── HERO ───────────────────────────────────────────── */
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding-top: 100px;
+      background: var(--canvas);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Background videos — stacked, crossfade between them */
+    .hero__video {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .hero__video--b { z-index: 0; }
+    .hero__video--a { z-index: 0; }
+    .hero__video.active  { opacity: 1; }
+    .hero__video.fadeout { opacity: 0; }
+    /* Left-side canvas mask — keeps text legible */
+    .hero__bg {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        linear-gradient(
+          to right,
+          var(--canvas) 0%,
+          var(--canvas) 38%,
+          rgba(244, 239, 230, 0.82) 52%,
+          rgba(244, 239, 230, 0.30) 70%,
+          rgba(244, 239, 230, 0.08) 100%
+        ),
+        radial-gradient(ellipse 60% 80% at 0% 50%, rgba(244, 239, 230, 0.95) 0%, transparent 55%);
+    }
+    /* Bottom fade so globe doesn't hard-cut */
+    .hero__bg::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to top, var(--canvas) 0%, transparent 100%);
+    }
+    .hero__noise {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+    .hero__inner {
+      position: relative; z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      padding: 80px 0 60px;
+    }
+    .hero__content { display: flex; flex-direction: column; gap: 28px; }
+    .hero__eyebrow {
+      animation: fadeUp 0.8s var(--ease-out) 0.1s both;
+    }
+    .hero__heading {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 6vw, 88px);
+      font-weight: 300;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      color: var(--forest);
+      animation: fadeUp 0.9s var(--ease-out) 0.2s both;
+    }
+    .hero__heading em {
+      font-style: italic;
+      color: var(--moss);
+      font-weight: 400;
+    }
+    .hero__heading strong {
+      font-weight: 500;
+      position: relative; display: inline-block;
+    }
+    .hero__heading strong::after {
+      content: '';
+      position: absolute; bottom: 4px; left: 0; right: 0;
+      height: 3px; background: var(--amber);
+      border-radius: 2px;
+      transform-origin: left;
+      animation: lineGrow 0.8s var(--ease-out) 1.1s both;
+    }
+    .hero__body {
+      font-size: 19px; color: var(--ink-muted);
+      max-width: 480px; line-height: 1.7;
+      animation: fadeUp 0.9s var(--ease-out) 0.35s both;
+    }
+    .hero__actions {
+      display: flex; align-items: center; gap: 16px;
+      animation: fadeUp 0.9s var(--ease-out) 0.5s both;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-label); font-size: 14px; font-weight: 600;
+      color: var(--white); background: var(--forest);
+      padding: 15px 30px; border-radius: 100px;
+      transition: background 0.3s, transform 0.4s var(--ease-spring), box-shadow 0.3s;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover {
+      background: var(--forest-mid);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(28, 61, 46, 0.28);
+    }
+    .btn-primary svg { transition: transform 0.3s var(--ease-spring); }
+    .btn-primary:hover svg { transform: translateX(3px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-label); font-size: 14px; font-weight: 500;
+      color: var(--forest-mid);
+      padding: 15px 24px; border-radius: 100px;
+      border: 1.5px solid rgba(45, 90, 65, 0.25);
+      transition: border-color 0.3s, background 0.3s, transform 0.3s var(--ease-spring);
+    }
+    .btn-ghost:hover {
+      border-color: var(--forest-mid);
+      background: rgba(45, 90, 65, 0.05);
+      transform: translateY(-1px);
+    }
+    .hero__visual {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 480px;
+      animation: fadeIn 1.8s var(--ease-out) 0.6s both;
+    }
+    /* Floating stat badges — positioned freely in the globe space */
+    .hero__image-badge {
+      position: absolute; bottom: 60px; left: 0;
+      background: rgba(253, 252, 249, 0.88);
+      backdrop-filter: blur(20px) saturate(160%);
+      border-radius: var(--radius-md);
+      padding: 16px 22px;
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: 0 4px 24px rgba(28,61,46,0.10);
+      animation: float 6s ease-in-out infinite;
+    }
+    .hero__image-badge .badge-value {
+      font-family: var(--font-display);
+      font-size: 32px; font-weight: 500;
+      color: var(--forest); line-height: 1;
+    }
+    .hero__image-badge .badge-label {
+      font-family: var(--font-label); font-size: 11px; font-weight: 500;
+      color: var(--ink-muted); letter-spacing: 0.08em; text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .hero__floating-card {
+      position: absolute; top: 40px; right: 20px;
+      background: rgba(28, 61, 46, 0.90);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(28,61,46,0.20);
+      animation: float 5s ease-in-out 0.8s infinite;
+    }
+    .hero__floating-card .card-icon { font-size: 22px; margin-bottom: 6px; }
+    .hero__floating-card .card-text {
+      font-family: var(--font-label); font-size: 11px; font-weight: 500;
+      opacity: 0.7; letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .hero__floating-card .card-num {
+      font-family: var(--font-display); font-size: 24px; font-weight: 400;
+      line-height: 1.1; margin-top: 2px;
+    }
+    /* Second floating badge — center right */
+    .hero__badge-2 {
+      position: absolute; top: 48%; right: -10px;
+      transform: translateY(-50%);
+      background: rgba(253, 252, 249, 0.88);
+      backdrop-filter: blur(20px) saturate(160%);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: 0 4px 24px rgba(28,61,46,0.10);
+      animation: float 7s ease-in-out 1.2s infinite;
+    }
+    .hero__badge-2 .badge-value {
+      font-family: var(--font-display);
+      font-size: 26px; font-weight: 500;
+      color: var(--forest); line-height: 1;
+    }
+    .hero__badge-2 .badge-label {
+      font-family: var(--font-label); font-size: 11px; font-weight: 500;
+      color: var(--ink-muted); letter-spacing: 0.08em; text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .hero__scroll {
+      position: relative; z-index: 3;
+      display: flex; align-items: center; gap: 16px;
+      padding: 28px 0;
+      font-family: var(--font-label); font-size: 11px; font-weight: 500;
+      color: var(--ink-muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .hero__scroll::before {
+      content: ''; flex: none;
+      width: 40px; height: 1px; background: var(--ink-muted); opacity: 0.4;
+    }
+
+    /* ─── TICKER ─────────────────────────────────────────── */
+    .ticker {
+      background: var(--forest);
+      padding: 14px 0;
+      overflow: hidden;
+    }
+    .ticker__track {
+      display: flex; gap: 0;
+      animation: marquee 28s linear infinite;
+      width: max-content;
+    }
+    .ticker__item {
+      display: flex; align-items: center; gap: 12px;
+      font-family: var(--font-label); font-size: 12px; font-weight: 500;
+      color: rgba(253, 252, 249, 0.7);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0 40px; white-space: nowrap;
+    }
+    .ticker__item .dot { width: 4px; height: 4px; background: var(--amber-light); border-radius: 50%; }
+
+    /* ─── STATS ──────────────────────────────────────────── */
+    .stats {
+      padding: clamp(80px, 10vw, 140px) 0;
+      background: var(--canvas);
+    }
+    .stats__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: center;
+    }
+    .stats__text { display: flex; flex-direction: column; gap: 24px; }
+    .stats__heading {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 4.5vw, 60px);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.025em;
+      color: var(--forest);
+    }
+    .stats__heading em { font-style: italic; color: var(--amber); }
+    .stats__body {
+      font-size: 17px; color: var(--ink-muted); line-height: 1.75;
+      max-width: 440px;
+    }
+    .stats__grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .stat-cell {
+      background: var(--canvas-2);
+      padding: 32px 28px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: background 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .stat-cell::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--moss);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.5s var(--ease-out);
+    }
+    .stat-cell:hover { background: var(--white); }
+    .stat-cell:hover::before { transform: scaleX(1); }
+    .stat-cell__value {
+      font-family: var(--font-display);
+      font-size: 44px; font-weight: 400;
+      color: var(--forest); line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .stat-cell__value span { color: var(--amber); }
+    .stat-cell__label {
+      font-family: var(--font-label); font-size: 12px; font-weight: 500;
+      color: var(--ink-muted); letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .stat-cell__sub {
+      font-size: 13px; color: var(--ink-muted); line-height: 1.5; margin-top: 2px;
+    }
+
+    /* ─── INITIATIVES ────────────────────────────────────── */
+    .initiatives {
+      padding: clamp(80px, 10vw, 140px) 0;
+      background: var(--canvas-2);
+    }
+    .initiatives__header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: clamp(48px, 6vw, 72px);
+      gap: 24px; flex-wrap: wrap;
+    }
+    .initiatives__heading {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 4vw, 54px);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.025em; color: var(--forest);
+    }
+    .initiatives__heading em { font-style: italic; }
+    .initiatives__subhead {
+      font-size: 16px; color: var(--ink-muted);
+      max-width: 360px; line-height: 1.65;
+    }
+    .initiatives__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .initiative-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.5s var(--ease-spring), box-shadow 0.4s;
+      cursor: pointer;
+    }
+    .initiative-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card);
+    }
+    .initiative-card:nth-child(2) { margin-top: 32px; }
+    .initiative-card:nth-child(3) { margin-top: 64px; }
+    .initiative-card__image {
+      aspect-ratio: 4/3; overflow: hidden; position: relative;
+    }
+    .initiative-card__image img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.7s var(--ease-out);
+    }
+    .initiative-card:hover .initiative-card__image img { transform: scale(1.07); }
+    .initiative-card__body { padding: 28px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .initiative-card__tag { align-self: flex-start; }
+    .initiative-card__title {
+      font-family: var(--font-display);
+      font-size: 22px; font-weight: 400;
+      color: var(--forest); line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+    .initiative-card__desc {
+      font-size: 15px; color: var(--ink-muted); line-height: 1.65;
+    }
+    .initiative-card__footer {
+      margin-top: auto; padding-top: 20px;
+      border-top: 1px solid var(--canvas-2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .initiative-card__progress-label {
+      font-family: var(--font-label); font-size: 11px; font-weight: 600;
+      color: var(--ink-muted); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .initiative-card__progress-bar {
+      height: 4px; background: var(--canvas-2);
+      border-radius: 2px; margin-top: 6px;
+      overflow: hidden;
+    }
+    .initiative-card__progress-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--moss), var(--leaf));
+      transition: width 1.2s var(--ease-out);
+      width: 0;
+    }
+    .initiative-card.visible .initiative-card__progress-fill { width: var(--progress); }
+    .initiative-card__progress-pct {
+      font-family: var(--font-display); font-size: 20px; font-weight: 400;
+      color: var(--forest);
+    }
+
+    /* ─── IMPACT ─────────────────────────────────────────── */
+    .impact {
+      padding: clamp(80px, 10vw, 140px) 0;
+      background: var(--forest);
+      color: var(--white);
+      position: relative; overflow: hidden;
+    }
+    .impact__bg-text {
+      position: absolute; top: -10%; left: -5%;
+      font-family: var(--font-display);
+      font-size: clamp(140px, 20vw, 280px);
+      font-weight: 700; line-height: 1;
+      color: rgba(255,255,255,0.025);
+      pointer-events: none; white-space: nowrap;
+      letter-spacing: -0.05em;
+    }
+    .impact__inner {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: clamp(48px, 8vw, 100px);
+      align-items: center;
+    }
+    .impact__heading {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 5vw, 68px);
+      font-weight: 300; line-height: 1.05;
+      letter-spacing: -0.03em; color: var(--white);
+      margin-bottom: 24px;
+    }
+    .impact__heading em { font-style: italic; color: var(--amber-light); }
+    .impact__body {
+      font-size: 17px; color: rgba(253,252,249,0.65);
+      line-height: 1.75; margin-bottom: 36px; max-width: 460px;
+    }
+    .impact__quote {
+      position: relative;
+      padding: 28px 32px;
+      background: rgba(255,255,255,0.06);
+      border-left: 3px solid var(--amber-light);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 36px;
+    }
+    .impact__quote p {
+      font-family: var(--font-display);
+      font-size: 20px; font-style: italic;
+      font-weight: 300; line-height: 1.5;
+      color: rgba(253,252,249,0.9);
+    }
+    .impact__quote cite {
+      display: block; margin-top: 12px;
+      font-family: var(--font-label); font-size: 12px;
+      color: var(--amber-light); font-style: normal;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .btn-light {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-label); font-size: 14px; font-weight: 600;
+      color: var(--forest); background: var(--white);
+      padding: 15px 30px; border-radius: 100px;
+      transition: background 0.3s, transform 0.4s var(--ease-spring), box-shadow 0.3s;
+      letter-spacing: 0.01em;
+    }
+    .btn-light:hover {
+      background: var(--cream);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+    .impact__visual {
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .impact-metric {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      display: flex; align-items: center; gap: 24px;
+      transition: background 0.3s, transform 0.3s var(--ease-spring);
+    }
+    .impact-metric:hover {
+      background: rgba(255,255,255,0.10);
+      transform: translateX(6px);
+    }
+    .impact-metric__icon {
+      font-size: 36px; flex-shrink: 0;
+      width: 60px; height: 60px;
+      background: rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .impact-metric__value {
+      font-family: var(--font-display);
+      font-size: 38px; font-weight: 400;
+      color: var(--white); line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .impact-metric__value span { color: var(--amber-light); }
+    .impact-metric__label {
+      font-family: var(--font-label); font-size: 12px; font-weight: 500;
+      color: rgba(253,252,249,0.55); letter-spacing: 0.06em;
+      text-transform: uppercase; margin-top: 4px;
+    }
+
+    /* ─── GALLERY ────────────────────────────────────────── */
+    .gallery {
+      padding: clamp(80px, 10vw, 140px) 0;
+      background: var(--canvas);
+    }
+    .gallery__header { margin-bottom: clamp(48px, 6vw, 72px); }
+    .gallery__heading {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 4vw, 54px);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.025em; color: var(--forest);
+      margin-top: 16px;
+    }
+    .gallery__heading em { font-style: italic; color: var(--moss); }
+    .gallery__grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+    .gallery-item {
+      border-radius: var(--radius-lg);
+      overflow: hidden; position: relative;
+      cursor: pointer;
+    }
+    .gallery-item:first-child { grid-row: 1 / 3; }
+    .gallery-item img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.7s var(--ease-out);
+      min-height: 220px;
+    }
+    .gallery-item:first-child img { min-height: 480px; }
+    .gallery-item:hover img { transform: scale(1.05); }
+    .gallery-item__caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(28,61,46,0.7));
+      padding: 40px 20px 20px;
+      transform: translateY(100%);
+      transition: transform 0.4s var(--ease-out);
+    }
+    .gallery-item:hover .gallery-item__caption { transform: translateY(0); }
+    .gallery-item__caption p {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 15px; color: var(--white);
+    }
+
+    /* ─── PARTNERS ───────────────────────────────────────── */
+    .partners {
+      padding: clamp(60px, 8vw, 100px) 0;
+      background: var(--canvas-2);
+      border-top: 1px solid rgba(28,61,46,0.08);
+    }
+    .partners__label {
+      font-family: var(--font-label); font-size: 11px; font-weight: 600;
+      color: var(--ink-muted); letter-spacing: 0.12em; text-transform: uppercase;
+      text-align: center; margin-bottom: 36px;
+    }
+    .partners__logos {
+      display: flex; align-items: center; justify-content: center;
+      gap: clamp(32px, 5vw, 72px); flex-wrap: wrap;
+    }
+    .partner-logo {
+      font-family: var(--font-display); font-size: 18px; font-weight: 400;
+      color: var(--ink-muted); letter-spacing: -0.01em;
+      opacity: 0.55;
+      transition: opacity 0.3s, transform 0.3s var(--ease-spring);
+    }
+    .partner-logo:hover { opacity: 1; transform: scale(1.05); }
+
+    /* ─── CTA / DONATE ───────────────────────────────────── */
+    .cta {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--canvas);
+      text-align: center;
+    }
+    .cta__inner { max-width: 760px; margin-inline: auto; }
+    .cta__eyebrow { margin-bottom: 24px; display: flex; justify-content: center; }
+    .cta__heading {
+      font-family: var(--font-display);
+      font-size: clamp(44px, 6vw, 80px);
+      font-weight: 300; line-height: 1.05;
+      letter-spacing: -0.03em; color: var(--forest);
+      margin-bottom: 24px;
+    }
+    .cta__heading em { font-style: italic; color: var(--amber); }
+    .cta__body {
+      font-size: 18px; color: var(--ink-muted); line-height: 1.7;
+      margin-bottom: 48px;
+    }
+    .cta__amounts {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 32px;
+    }
+    .amount-btn {
+      font-family: var(--font-label); font-size: 15px; font-weight: 600;
+      color: var(--forest);
+      padding: 12px 24px; border-radius: 100px;
+      border: 1.5px solid rgba(28,61,46,0.2);
+      background: transparent;
+      transition: all 0.3s var(--ease-spring);
+      cursor: pointer;
+    }
+    .amount-btn:hover, .amount-btn.active {
+      background: var(--forest);
+      color: var(--white);
+      border-color: var(--forest);
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(28,61,46,0.22);
+    }
+    .cta__donate-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-family: var(--font-label); font-size: 16px; font-weight: 600;
+      color: var(--white); background: var(--forest);
+      padding: 18px 40px; border-radius: 100px;
+      transition: background 0.3s, transform 0.4s var(--ease-spring), box-shadow 0.3s;
+      letter-spacing: 0.01em;
+    }
+    .cta__donate-btn:hover {
+      background: var(--forest-mid);
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(28,61,46,0.28);
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    footer {
+      background: var(--ink);
+      color: var(--white);
+      padding: clamp(60px, 8vw, 100px) 0 40px;
+    }
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr 1fr;
+      gap: clamp(32px, 5vw, 60px);
+      margin-bottom: 64px;
+    }
+    .footer__brand {}
+    .footer__logo {
+      font-family: var(--font-display);
+      font-size: 26px; font-weight: 500;
+      color: var(--white); letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .footer__logo span { font-style: italic; color: var(--sage); }
+    .footer__tagline {
+      font-size: 15px; color: rgba(255,255,255,0.5);
+      line-height: 1.65; max-width: 280px; margin-bottom: 24px;
+    }
+    .footer__social {
+      display: flex; gap: 12px;
+    }
+    .social-link {
+      width: 38px; height: 38px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.55); font-size: 14px;
+      font-family: var(--font-label); font-weight: 600;
+      transition: all 0.3s var(--ease-spring);
+    }
+    .social-link:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.3);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+    .footer__col-title {
+      font-family: var(--font-label); font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.4); letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .footer__links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer__links a {
+      font-size: 14px; color: rgba(255,255,255,0.55);
+      transition: color 0.2s;
+    }
+    .footer__links a:hover { color: var(--white); }
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .footer__copyright {
+      font-family: var(--font-label); font-size: 12px;
+      color: rgba(255,255,255,0.3);
+    }
+    .footer__legal {
+      display: flex; gap: 24px;
+    }
+    .footer__legal a {
+      font-family: var(--font-label); font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      transition: color 0.2s;
+    }
+    .footer__legal a:hover { color: rgba(255,255,255,0.7); }
+
+    /* ─── MOBILE NAV DRAWER ──────────────────────────────── */
+    .nav__drawer {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 99;
+      flex-direction: column;
+      background: var(--canvas);
+      padding: 100px 32px 48px;
+      transform: translateY(-100%);
+      transition: transform 0.5s var(--ease-out);
+    }
+    .nav__drawer.open { transform: translateY(0); }
+    .nav__drawer-links {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 4px;
+      margin-bottom: 40px;
+    }
+    .nav__drawer-links a {
+      display: block;
+      font-family: var(--font-display);
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--forest);
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(28,61,46,0.08);
+      transition: color 0.2s, padding-left 0.3s var(--ease-out);
+    }
+    .nav__drawer-links a:hover { color: var(--moss); padding-left: 8px; }
+    .nav__drawer-links a em { font-style: italic; }
+    .nav__drawer-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-label); font-size: 15px; font-weight: 600;
+      color: var(--white); background: var(--forest);
+      padding: 16px 32px; border-radius: 100px;
+      align-self: flex-start;
+      transition: background 0.3s, transform 0.3s var(--ease-spring);
+    }
+    .nav__drawer-cta:hover { background: var(--forest-mid); }
+    .nav__drawer-footer {
+      margin-top: auto;
+      font-family: var(--font-label); font-size: 12px;
+      color: var(--ink-muted); letter-spacing: 0.06em;
+    }
+    /* Hamburger → X animation */
+    .nav__mobile-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav__mobile-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav__mobile-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ─── MOBILE HERO STAT STRIP ─────────────────────────── */
+    .hero__stat-strip {
+      display: none;
+      gap: 10px; flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    .hero__stat-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(253,252,249,0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 100px;
+      padding: 10px 18px;
+    }
+    .hero__stat-pill .pill-value {
+      font-family: var(--font-display); font-size: 18px; font-weight: 500;
+      color: var(--forest); line-height: 1;
+    }
+    .hero__stat-pill .pill-label {
+      font-family: var(--font-label); font-size: 10px; font-weight: 600;
+      color: var(--ink-muted); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* ─── FOOTER ACCORDION (mobile) ─────────────────────── */
+    .footer__col-toggle {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      width: 100%; text-align: left;
+      font-family: var(--font-label); font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.4); letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      align-items: center; justify-content: space-between;
+    }
+    .footer__col-toggle svg { transition: transform 0.3s var(--ease-out); flex-shrink: 0; }
+    .footer__col-toggle.open svg { transform: rotate(180deg); }
+    .footer__links-wrap {
+      overflow: hidden;
+      max-height: 1000px;
+      transition: max-height 0.4s var(--ease-out);
+    }
+    .footer__links-wrap.collapsed { max-height: 0; }
+
+    /* ─── RESPONSIVE — TABLET ────────────────────────────── */
+    @media (max-width: 1024px) {
+      .initiatives__grid { grid-template-columns: 1fr 1fr; }
+      .initiative-card:nth-child(3) { margin-top: 0; }
+      .footer__grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ─── RESPONSIVE — MOBILE ────────────────────────────── */
+    @media (max-width: 768px) {
+      /* Nav */
+      .nav { padding: 16px 0; }
+      .nav__links, .nav__cta { display: none; }
+      .nav__mobile-toggle { display: flex; }
+      .nav__drawer { display: flex; }
+
+      /* Hero */
+      .hero { padding-top: 80px; min-height: 100svh; }
+      .hero__inner {
+        grid-template-columns: 1fr;
+        padding: 48px 0 32px;
+        gap: 0;
+      }
+      .hero__visual { display: none; }
+      .hero__bg {
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(244,239,230,0.92) 0%,
+            rgba(244,239,230,0.55) 50%,
+            rgba(244,239,230,0.92) 100%
+          );
+      }
+      .hero__heading { font-size: clamp(40px, 11vw, 60px); }
+      .hero__body { font-size: 16px; }
+      .hero__actions { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .btn-primary, .btn-ghost {
+        width: 100%; justify-content: center;
+        padding: 16px 24px; font-size: 15px;
+      }
+      .hero__stat-strip { display: flex; }
+      .hero__scroll { padding: 20px 0 12px; }
+
+      /* Stats */
+      .stats__inner { grid-template-columns: 1fr; gap: 40px; }
+      .stats__grid { grid-template-columns: 1fr 1fr; gap: 2px; }
+      .stat-cell { padding: 24px 20px; }
+      .stat-cell__value { font-size: 36px; }
+
+      /* Initiatives — horizontal scroll carousel */
+      .initiatives__grid {
+        grid-template-columns: unset;
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 16px;
+        padding-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .initiatives__grid::-webkit-scrollbar { display: none; }
+      .initiative-card {
+        flex: 0 0 80vw;
+        max-width: 320px;
+        scroll-snap-align: start;
+      }
+      .initiative-card:nth-child(2),
+      .initiative-card:nth-child(3) { margin-top: 0; }
+      /* Scroll hint */
+      .initiatives__scroll-hint {
+        display: flex; align-items: center; gap: 8px;
+        font-family: var(--font-label); font-size: 11px; font-weight: 500;
+        color: var(--ink-muted); letter-spacing: 0.08em; text-transform: uppercase;
+        margin-top: 16px;
+      }
+      .initiatives__scroll-hint svg { opacity: 0.5; }
+
+      /* Impact */
+      .impact__inner { grid-template-columns: 1fr; gap: 40px; }
+      .impact__quote { padding: 20px 20px; }
+      .impact__quote p { font-size: 17px; }
+      .impact-metric { padding: 20px 20px; gap: 16px; }
+      .impact-metric__icon { width: 48px; height: 48px; font-size: 26px; }
+      .impact-metric__value { font-size: 30px; }
+      .btn-light { width: 100%; justify-content: center; }
+
+      /* Gallery — 2 col, captions always visible on touch */
+      .gallery__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .gallery-item:first-child { grid-column: 1 / -1; grid-row: auto; }
+      .gallery-item__caption {
+        transform: translateY(0);
+        background: linear-gradient(transparent 20%, rgba(28,61,46,0.65) 100%);
+      }
+
+      /* Partners */
+      .partners__logos { gap: 24px 32px; }
+
+      /* CTA */
+      .cta__amounts { gap: 8px; }
+      .amount-btn { padding: 12px 18px; font-size: 14px; }
+      .cta__donate-btn { width: 100%; justify-content: center; padding: 18px 24px; }
+
+      /* Footer */
+      .footer__grid { grid-template-columns: 1fr; gap: 0; margin-bottom: 40px; }
+      .footer__brand { padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+      .footer__col-title { display: none; }
+      .footer__col-toggle { display: flex; }
+      .footer__links { padding: 12px 0 16px; }
+      .footer__links a { font-size: 15px; padding: 6px 0; }
+      .footer__bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .footer__legal { gap: 16px; }
+      .social-link { width: 44px; height: 44px; }
+    }
+
+    /* ─── RESPONSIVE — SMALL MOBILE ─────────────────────── */
+    @media (max-width: 480px) {
+      .stats__grid { grid-template-columns: 1fr 1fr; }
+      .gallery__grid { grid-template-columns: 1fr; }
+      .gallery-item:first-child img { min-height: 260px; }
+      .initiative-card { flex: 0 0 88vw; }
+      .impact__heading { font-size: clamp(34px, 9vw, 48px); }
+      .cta__heading { font-size: clamp(36px, 10vw, 52px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAVIGATION ──────────────────────────────────── -->
+  <nav class="nav" id="nav">
+    <div class="container">
+      <div class="nav__inner">
+        <a href="#" class="nav__logo">Ver<span>dant</span></a>
+        <ul class="nav__links">
+          <li><a href="#initiatives">Initiatives</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#stories">Stories</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+        <a href="#donate" class="nav__cta">Plant a Seed</a>
+        <button class="nav__mobile-toggle" id="mobileToggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── MOBILE DRAWER ────────────────────────────────── -->
+  <div class="nav__drawer" id="mobileDrawer" aria-hidden="true">
+    <ul class="nav__drawer-links">
+      <li><a href="#initiatives" class="drawer-link"><em>01</em> Initiatives</a></li>
+      <li><a href="#impact"      class="drawer-link"><em>02</em> Impact</a></li>
+      <li><a href="#stories"     class="drawer-link"><em>03</em> Stories</a></li>
+      <li><a href="#about"       class="drawer-link"><em>04</em> About</a></li>
+    </ul>
+    <a href="#donate" class="nav__drawer-cta drawer-link">
+      Plant a Seed
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <p class="nav__drawer-footer">© 2026 Verdant Conservation</p>
+  </div>
+
+  <!-- ─── HERO ────────────────────────────────────────── -->
+  <section class="hero">
+    <!-- Dual video for seamless crossfade loop -->
+    <video class="hero__video hero__video--a" src="earth.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <video class="hero__video hero__video--b" src="earth.mp4" muted playsinline preload="auto" aria-hidden="true"></video>
+    <div class="hero__bg"></div>
+    <div class="hero__noise"></div>
+    <div class="container">
+      <div class="hero__inner">
+
+        <div class="hero__content">
+          <div class="hero__eyebrow">
+            <span class="tag">Conservation · 2026</span>
+          </div>
+          <h1 class="hero__heading">
+            Nature is<br />
+            <em>not a resource.</em><br />
+            It is our<br />
+            <strong>inheritance.</strong>
+          </h1>
+          <p class="hero__body">
+            We work at the intersection of land stewardship, indigenous knowledge,
+            and ecological science to protect what remains — before it becomes
+            a memory.
+          </p>
+          <div class="hero__actions">
+            <a href="#donate" class="btn-primary">
+              Join the Movement
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="#initiatives" class="btn-ghost">Our Initiatives</a>
+          </div>
+          <!-- Stat pills — mobile only -->
+          <div class="hero__stat-strip">
+            <div class="hero__stat-pill">
+              <div class="pill-value">3.2M</div>
+              <div class="pill-label">Acres Protected</div>
+            </div>
+            <div class="hero__stat-pill">
+              <div class="pill-value">847K</div>
+              <div class="pill-label">Trees Planted</div>
+            </div>
+            <div class="hero__stat-pill">
+              <div class="pill-value">312+</div>
+              <div class="pill-label">Species Saved</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating stat badges hover over the globe -->
+        <div class="hero__visual">
+          <div class="hero__image-badge">
+            <div class="badge-value">3.2M</div>
+            <div class="badge-label">Acres Protected</div>
+          </div>
+
+          <div class="hero__floating-card">
+            <div class="card-icon">🌱</div>
+            <div class="card-text">Trees Planted</div>
+            <div class="card-num">847K</div>
+          </div>
+
+          <div class="hero__badge-2">
+            <div class="badge-value">312+</div>
+            <div class="badge-label">Species Saved</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="container">
+      <div class="hero__scroll">Scroll to explore</div>
+    </div>
+  </section>
+
+  <!-- ─── TICKER ───────────────────────────────────────── -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      <span class="ticker__item"><span class="dot"></span> Reforestation Programs</span>
+      <span class="ticker__item"><span class="dot"></span> Ocean Conservation</span>
+      <span class="ticker__item"><span class="dot"></span> Wildlife Corridors</span>
+      <span class="ticker__item"><span class="dot"></span> Wetland Restoration</span>
+      <span class="ticker__item"><span class="dot"></span> Indigenous Land Rights</span>
+      <span class="ticker__item"><span class="dot"></span> Carbon Sequestration</span>
+      <span class="ticker__item"><span class="dot"></span> Biodiversity Research</span>
+      <span class="ticker__item"><span class="dot"></span> Reforestation Programs</span>
+      <span class="ticker__item"><span class="dot"></span> Ocean Conservation</span>
+      <span class="ticker__item"><span class="dot"></span> Wildlife Corridors</span>
+      <span class="ticker__item"><span class="dot"></span> Wetland Restoration</span>
+      <span class="ticker__item"><span class="dot"></span> Indigenous Land Rights</span>
+      <span class="ticker__item"><span class="dot"></span> Carbon Sequestration</span>
+      <span class="ticker__item"><span class="dot"></span> Biodiversity Research</span>
+    </div>
+  </div>
+
+  <!-- ─── STATS ────────────────────────────────────────── -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats__inner">
+
+        <div class="stats__text reveal">
+          <div>
+            <span class="tag">By the Numbers</span>
+          </div>
+          <h2 class="stats__heading">
+            The scale of loss<br />
+            demands <em>urgency.</em>
+          </h2>
+          <p class="stats__body">
+            Every hour, 4,500 acres of forest disappear. Every day, dozens of species
+            edge closer to silence. These are not abstractions — they are the ground
+            beneath our feet, the air in our lungs, the future we share.
+          </p>
+        </div>
+
+        <div class="stats__grid reveal reveal-delay-2">
+          <div class="stat-cell">
+            <div class="stat-cell__value">4,500<span>+</span></div>
+            <div class="stat-cell__label">Acres Lost Per Hour</div>
+            <div class="stat-cell__sub">Global deforestation rate across tropical regions</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell__value">1<span>M</span></div>
+            <div class="stat-cell__label">Species at Risk</div>
+            <div class="stat-cell__sub">Of 8 million known species facing extinction</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell__value">50<span>%</span></div>
+            <div class="stat-cell__label">Wetlands Vanished</div>
+            <div class="stat-cell__sub">Since 1900 — critical carbon and biodiversity sinks</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-cell__value">30<span>%</span></div>
+            <div class="stat-cell__label">Oceans Acidified</div>
+            <div class="stat-cell__sub">Threatening 25% of all marine species</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── INITIATIVES ───────────────────────────────────── -->
+  <section class="initiatives" id="initiatives">
+    <div class="container">
+      <div class="initiatives__header">
+        <div>
+          <span class="tag reveal">Active Programs</span>
+          <h2 class="initiatives__heading reveal reveal-delay-1">
+            Where we<br /><em>work hardest.</em>
+          </h2>
+        </div>
+        <p class="initiatives__subhead reveal reveal-delay-2">
+          Three flagship initiatives, each tackling a different dimension
+          of the ecological crisis — on land, in water, and in the air.
+        </p>
+      </div>
+
+      <div class="initiatives__grid">
+
+        <div class="initiative-card reveal" style="--progress: 78%">
+          <div class="initiative-card__image">
+            <img
+              src="https://images.unsplash.com/photo-1511497584788-876760111969?w=600&q=80&auto=format"
+              alt="Tropical rainforest canopy"
+              loading="lazy"
+            />
+          </div>
+          <div class="initiative-card__body">
+            <span class="tag initiative-card__tag">Forest</span>
+            <h3 class="initiative-card__title">Amazon Canopy Restoration Network</h3>
+            <p class="initiative-card__desc">
+              Partnering with 14 indigenous communities to restore 200,000 acres
+              of degraded Amazon rainforest using traditional agroforestry methods.
+            </p>
+            <div class="initiative-card__footer">
+              <div>
+                <div class="initiative-card__progress-label">Goal Progress</div>
+                <div class="initiative-card__progress-bar">
+                  <div class="initiative-card__progress-fill"></div>
+                </div>
+              </div>
+              <div class="initiative-card__progress-pct">78%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="initiative-card reveal reveal-delay-1" style="--progress: 54%">
+          <div class="initiative-card__image">
+            <img
+              src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&q=80&auto=format"
+              alt="Clear ocean with coral reef"
+              loading="lazy"
+            />
+          </div>
+          <div class="initiative-card__body">
+            <span class="tag initiative-card__tag">Ocean</span>
+            <h3 class="initiative-card__title">Blue Corridor: Pacific Reef Protection</h3>
+            <p class="initiative-card__desc">
+              Establishing a 1,200-mile marine protected zone linking fragmented
+              coral ecosystems across five Pacific island nations.
+            </p>
+            <div class="initiative-card__footer">
+              <div>
+                <div class="initiative-card__progress-label">Goal Progress</div>
+                <div class="initiative-card__progress-bar">
+                  <div class="initiative-card__progress-fill"></div>
+                </div>
+              </div>
+              <div class="initiative-card__progress-pct">54%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="initiative-card reveal reveal-delay-2" style="--progress: 91%">
+          <div class="initiative-card__image">
+            <img
+              src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80&auto=format"
+              alt="Mountain meadow with wildflowers"
+              loading="lazy"
+            />
+          </div>
+          <div class="initiative-card__body">
+            <span class="tag initiative-card__tag">Grassland</span>
+            <h3 class="initiative-card__title">Northern Grasslands Seed Archive</h3>
+            <p class="initiative-card__desc">
+              Preserving 40,000 native seed varieties from North American prairies —
+              the living library of a vanishing biome.
+            </p>
+            <div class="initiative-card__footer">
+              <div>
+                <div class="initiative-card__progress-label">Goal Progress</div>
+                <div class="initiative-card__progress-bar">
+                  <div class="initiative-card__progress-fill"></div>
+                </div>
+              </div>
+              <div class="initiative-card__progress-pct">91%</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- Mobile swipe hint -->
+      <div class="initiatives__scroll-hint">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M8 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Swipe to explore
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── IMPACT ───────────────────────────────────────── -->
+  <section class="impact" id="impact">
+    <div class="impact__bg-text">VERDANT</div>
+    <div class="container">
+      <div class="impact__inner">
+
+        <div class="reveal">
+          <h2 class="impact__heading">
+            Measurable <em>change</em><br />
+            for the living world.
+          </h2>
+          <p class="impact__body">
+            Conservation without accountability is ambition without outcomes.
+            Every dollar we steward is tracked, reported, and independently
+            verified against ecological benchmarks.
+          </p>
+          <blockquote class="impact__quote">
+            <p>"The earth does not belong to us. We belong to the earth — and our
+            work is to remember that, one acre at a time."</p>
+            <cite>— Dr. Amara Osei, Chief Conservation Officer</cite>
+          </blockquote>
+          <a href="#" class="btn-light">
+            Read Our Impact Report
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        <div class="impact__visual reveal reveal-delay-2">
+          <div class="impact-metric">
+            <div class="impact-metric__icon">🌲</div>
+            <div>
+              <div class="impact-metric__value">847<span>K</span></div>
+              <div class="impact-metric__label">Trees Planted Since 2018</div>
+            </div>
+          </div>
+          <div class="impact-metric">
+            <div class="impact-metric__icon">🐾</div>
+            <div>
+              <div class="impact-metric__value">312<span>+</span></div>
+              <div class="impact-metric__label">Species Populations Stabilized</div>
+            </div>
+          </div>
+          <div class="impact-metric">
+            <div class="impact-metric__icon">🌊</div>
+            <div>
+              <div class="impact-metric__value">1.2<span>M</span></div>
+              <div class="impact-metric__label">Acres of Ocean Protected</div>
+            </div>
+          </div>
+          <div class="impact-metric">
+            <div class="impact-metric__icon">🏘️</div>
+            <div>
+              <div class="impact-metric__value">48</div>
+              <div class="impact-metric__label">Indigenous Communities Supported</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GALLERY ──────────────────────────────────────── -->
+  <section class="gallery" id="stories">
+    <div class="container">
+      <div class="gallery__header reveal">
+        <span class="tag">Field Stories</span>
+        <h2 class="gallery__heading">
+          Seen through<br /><em>patient eyes.</em>
+        </h2>
+      </div>
+
+      <div class="gallery__grid reveal reveal-delay-1">
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=800&q=80&auto=format"
+            alt="Dense ancient forest"
+            loading="lazy"
+          />
+          <div class="gallery-item__caption">
+            <p>Ancient redwood grove, Northern California — protected 2024</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=80&auto=format"
+            alt="Wildlife in natural habitat"
+            loading="lazy"
+          />
+          <div class="gallery-item__caption">
+            <p>Gray wolf corridor, Rocky Mountains</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&q=80&auto=format"
+            alt="Mountain river flowing"
+            loading="lazy"
+          />
+          <div class="gallery-item__caption">
+            <p>Restored salmon spawning river, British Columbia</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80&auto=format"
+            alt="Forest light through trees"
+            loading="lazy"
+          />
+          <div class="gallery-item__caption">
+            <p>Temperate rainforest, Olympic Peninsula</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1519307685-a5a3b6d2a34c?w=600&q=80&auto=format"
+            alt="Ocean landscape at sunset"
+            loading="lazy"
+          />
+          <div class="gallery-item__caption">
+            <p>Pacific marine sanctuary, Hawaii — Blue Corridor program</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PARTNERS ─────────────────────────────────────── -->
+  <section class="partners">
+    <div class="container">
+      <p class="partners__label reveal">Trusted by leading institutions</p>
+      <div class="partners__logos reveal reveal-delay-1">
+        <span class="partner-logo">WWF</span>
+        <span class="partner-logo">Sierra Club</span>
+        <span class="partner-logo">IUCN</span>
+        <span class="partner-logo">Conservation Int'l</span>
+        <span class="partner-logo">The Nature Conservancy</span>
+        <span class="partner-logo">Rainforest Alliance</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA / DONATE ──────────────────────────────────── -->
+  <section class="cta" id="donate">
+    <div class="container">
+      <div class="cta__inner">
+        <div class="cta__eyebrow reveal">
+          <span class="tag">Take Action</span>
+        </div>
+        <h2 class="cta__heading reveal reveal-delay-1">
+          Your gift<br />
+          <em>grows</em> with us.
+        </h2>
+        <p class="cta__body reveal reveal-delay-2">
+          A monthly contribution of any size directly funds land purchase,
+          restoration crews, and the community stewards who protect these lands
+          every day of the year.
+        </p>
+        <div class="cta__amounts reveal reveal-delay-3">
+          <button class="amount-btn" data-amount="10">$10 / mo</button>
+          <button class="amount-btn active" data-amount="25">$25 / mo</button>
+          <button class="amount-btn" data-amount="50">$50 / mo</button>
+          <button class="amount-btn" data-amount="100">$100 / mo</button>
+          <button class="amount-btn" data-amount="custom">Custom</button>
+        </div>
+        <a href="#" class="cta__donate-btn reveal reveal-delay-4">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2.25C7.25 2.25 4.5 3.75 4.5 6.75 4.5 9.75 9 15.75 9 15.75S13.5 9.75 13.5 6.75C13.5 3.75 10.75 2.25 9 2.25Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Donate Monthly — Plant a Future
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ───────────────────────────────────────── -->
+  <footer id="about">
+    <div class="container">
+      <div class="footer__grid">
+
+        <div class="footer__brand">
+          <div class="footer__logo">Ver<span>dant</span></div>
+          <p class="footer__tagline">
+            A conservation organization working at the edge of what still remains —
+            for everyone who comes after us.
+          </p>
+          <div class="footer__social">
+            <a href="#" class="social-link" aria-label="X / Twitter">𝕏</a>
+            <a href="#" class="social-link" aria-label="Instagram">IG</a>
+            <a href="#" class="social-link" aria-label="LinkedIn">in</a>
+            <a href="#" class="social-link" aria-label="YouTube">▶</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Programs</h4>
+          <button class="footer__col-toggle" aria-expanded="false">
+            Programs
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="footer__links-wrap collapsed">
+            <ul class="footer__links">
+              <li><a href="#">Amazon Restoration</a></li>
+              <li><a href="#">Blue Corridor</a></li>
+              <li><a href="#">Seed Archive</a></li>
+              <li><a href="#">Wildlife Corridors</a></li>
+              <li><a href="#">Carbon Projects</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Organization</h4>
+          <button class="footer__col-toggle" aria-expanded="false">
+            Organization
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="footer__links-wrap collapsed">
+            <ul class="footer__links">
+              <li><a href="#">Our Story</a></li>
+              <li><a href="#">Team & Science Board</a></li>
+              <li><a href="#">Annual Reports</a></li>
+              <li><a href="#">Press Room</a></li>
+              <li><a href="#">Careers</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Get Involved</h4>
+          <button class="footer__col-toggle" aria-expanded="false">
+            Get Involved
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="footer__links-wrap collapsed">
+            <ul class="footer__links">
+              <li><a href="#">Donate</a></li>
+              <li><a href="#">Corporate Partners</a></li>
+              <li><a href="#">Volunteer</a></li>
+              <li><a href="#">Field Programs</a></li>
+              <li><a href="#">Legacy Giving</a></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copyright">© 2026 Verdant Conservation. Registered 501(c)(3).</p>
+        <nav class="footer__legal">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Cookie Preferences</a>
+        </nav>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ─── SCRIPTS ──────────────────────────────────────── -->
+  <script>
+    // ── Seamless globe loop — dual video crossfade ────────
+    (() => {
+      const SKIP_TO   = 3;    // skip zoom intro (seconds)
+      const XFADE     = 1.2;  // crossfade duration (seconds) — must match CSS transition
+
+      const vA = document.querySelector('.hero__video--a');
+      const vB = document.querySelector('.hero__video--b');
+      if (!vA || !vB) return;
+
+      let active  = vA;   // currently visible
+      let standby = vB;   // preloaded, waiting to take over
+      let duration = 0;
+      let scheduled = false;
+
+      function prepareStandby() {
+        standby.currentTime = SKIP_TO;
+        standby.play().catch(() => {});
+      }
+
+      function crossfade() {
+        scheduled = false;
+        // Bring standby to front and fade it in
+        standby.style.zIndex = 1;
+        active.style.zIndex  = 0;
+        standby.classList.add('active');
+        active.classList.remove('active');
+
+        // Swap roles
+        const prev = active;
+        active  = standby;
+        standby = prev;
+
+        // Reset the old active — it's now the next standby
+        setTimeout(() => {
+          standby.pause();
+          prepareStandby();
+          scheduleXfade();
+        }, XFADE * 1000);
+      }
+
+      function scheduleXfade() {
+        if (scheduled) return;
+        scheduled = true;
+        const timeLeft = (duration - active.currentTime) - XFADE;
+        setTimeout(crossfade, Math.max(0, timeLeft * 1000));
+      }
+
+      function startPlayback() {
+        duration = vA.duration;
+        vA.currentTime = SKIP_TO;
+        vA.play().catch(() => {});
+        vA.classList.add('active');
+        // Pre-load standby to the same start point silently
+        vB.currentTime = SKIP_TO;
+        vB.load();
+        scheduleXfade();
+      }
+
+      vA.addEventListener('timeupdate', scheduleXfade);
+
+      if (vA.readyState >= 1) {
+        startPlayback();
+      } else {
+        vA.addEventListener('loadedmetadata', startPlayback, { once: true });
+      }
+
+      // Subtle parallax on scroll
+      window.addEventListener('scroll', () => {
+        const s = window.scrollY;
+        if (s < window.innerHeight) {
+          const t = `scale(1.05) translateY(${s * 0.04}px)`;
+          vA.style.transform = t;
+          vB.style.transform = t;
+        }
+      }, { passive: true });
+    })();
+
+    // ── Scroll-reveal observer ────────────────────────────
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          // Trigger progress bars inside initiative cards
+          const fill = entry.target.querySelector('.initiative-card__progress-fill');
+          if (fill) entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+
+    // ── Progress bars via IntersectionObserver ────────────
+    const cards = document.querySelectorAll('.initiative-card');
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.2 });
+    cards.forEach(c => cardObserver.observe(c));
+
+    // ── Sticky nav ────────────────────────────────────────
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // ── Mobile nav drawer ────────────────────────────────
+    const mobileToggle = document.getElementById('mobileToggle');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const drawerLinks  = document.querySelectorAll('.drawer-link');
+
+    function toggleDrawer(open) {
+      mobileToggle.classList.toggle('active', open);
+      mobileDrawer.classList.toggle('open', open);
+      mobileDrawer.setAttribute('aria-hidden', !open);
+      mobileToggle.setAttribute('aria-expanded', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    mobileToggle.addEventListener('click', () => {
+      toggleDrawer(!mobileDrawer.classList.contains('open'));
+    });
+
+    drawerLinks.forEach(link => {
+      link.addEventListener('click', () => toggleDrawer(false));
+    });
+
+    // ── Footer accordion ─────────────────────────────────
+    document.querySelectorAll('.footer__col-toggle').forEach(toggle => {
+      const wrap = toggle.nextElementSibling;
+      toggle.addEventListener('click', () => {
+        const isOpen = toggle.classList.contains('open');
+        toggle.classList.toggle('open', !isOpen);
+        wrap.classList.toggle('collapsed', isOpen);
+        toggle.setAttribute('aria-expanded', !isOpen);
+      });
+    });
+
+    // ── Swipe hint — hide on desktop ─────────────────────
+    const swipeHint = document.querySelector('.initiatives__scroll-hint');
+    if (swipeHint && window.innerWidth > 768) swipeHint.style.display = 'none';
+
+    // ── Donate amount selector ────────────────────────────
+    document.querySelectorAll('.amount-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+  </script>
+
+</body>
+</html>
