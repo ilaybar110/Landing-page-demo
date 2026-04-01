@@ -508,12 +508,37 @@
 
     /* ─── SCROLL REVEAL ───────────────────────── */
     .reveal {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity 0.65s var(--out), transform 0.65s var(--out);
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.7s var(--out), transform 0.7s var(--out);
     }
-    .reveal.in { opacity: 1; transform: translateY(0); }
-    .d1 { transition-delay: 0.1s; }
-    .d2 { transition-delay: 0.2s; }
+    .reveal-left {
+      opacity: 0; transform: translateX(-40px);
+      transition: opacity 0.75s var(--out), transform 0.75s var(--out);
+    }
+    .reveal-right {
+      opacity: 0; transform: translateX(40px);
+      transition: opacity 0.75s var(--out), transform 0.75s var(--out);
+    }
+    .reveal-scale {
+      opacity: 0; transform: scale(0.9);
+      transition: opacity 0.7s var(--out), transform 0.7s var(--spring);
+    }
+    .reveal.in, .reveal-left.in, .reveal-right.in, .reveal-scale.in {
+      opacity: 1; transform: translateY(0) translateX(0) scale(1);
+    }
+    .d1 { transition-delay: 0.08s; }
+    .d2 { transition-delay: 0.18s; }
+    .d3 { transition-delay: 0.28s; }
+    .d4 { transition-delay: 0.38s; }
+
+    /* counter number shimmer */
+    .count-num {
+      background: linear-gradient(90deg, var(--text) 40%, var(--accent) 55%, var(--text) 70%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .count-num.counted { animation: shimmer 1.2s ease forwards; }
   </style>
 </head>
 <body>
@@ -556,11 +581,11 @@
       </div>
       <div class="hero-proof">
         <div class="hero-proof-item">
-          <strong>4.8★</strong>
+          <strong><span class="count-num" data-target="4.8" data-suffix="★">4.8★</span></strong>
           <small>TripAdvisor</small>
         </div>
         <div class="hero-proof-item">
-          <strong>24+</strong>
+          <strong><span class="count-num" data-target="24" data-suffix="+">24+</span></strong>
           <small>שנות פעילות</small>
         </div>
         <div class="hero-proof-item">
@@ -579,8 +604,8 @@
   <!-- STORY -->
   <section class="section" id="story">
     <div class="container">
-      <div class="story-grid reveal">
-        <div class="story-text">
+      <div class="story-grid">
+        <div class="story-text reveal-left">
           <p class="label">הסיפור שלנו</p>
           <h2 class="story-h2">ירקן שהפך<br>למלך הפלאפל</h2>
           <p class="story-body">
@@ -594,7 +619,7 @@
             <cite>ביקורת TripAdvisor</cite>
           </div>
         </div>
-        <div class="story-img">
+        <div class="story-img reveal-right">
           <img src="images/falafel ofer 2.png" alt="הכנה טרייה">
         </div>
       </div>
@@ -609,9 +634,9 @@
         <h2 style="font-weight:900; font-size:clamp(2rem,3.5vw,2.75rem); letter-spacing:-0.03em; line-height:1; color:var(--text);">גלריה</h2>
       </div>
       <div class="gallery-grid">
-        <div class="g-item reveal" style="--i:0"><img src="images/falafel ofer.jpg" alt="פלאפל עופר"></div>
-        <div class="g-item reveal d1" style="--i:1"><img src="images/falafel ofer 2.png" alt="הכנה טרייה"></div>
-        <div class="g-item reveal d2" style="--i:2"><img src="images/falfel ofer 3.webp" alt="מנת פלאפל"></div>
+        <div class="g-item reveal-scale" style="--i:0"><img src="images/falafel ofer.jpg" alt="פלאפל עופר"></div>
+        <div class="g-item reveal-scale d1" style="--i:1"><img src="images/falafel ofer 2.png" alt="הכנה טרייה"></div>
+        <div class="g-item reveal-scale d2" style="--i:2"><img src="images/falfel ofer 3.webp" alt="מנת פלאפל"></div>
       </div>
       <div class="gallery-foot reveal">
         <span>שמואל הנביא 6, דונה סנטר — מודיעין מכבים רעות</span>
@@ -641,7 +666,7 @@
           <a href="#" onclick="return false;" class="btn-menu">לתפריט המלא</a>
         </div>
       </div>
-      <div class="contact-map">
+      <div class="contact-map reveal-scale">
         <div class="map-pin"></div>
         <div class="map-address-big">שמואל הנביא 6</div>
         <div class="map-city">דונה סנטר, מודיעין מכבים רעות</div>
@@ -652,17 +677,17 @@
       </div>
     </div>
     <div class="hours-grid">
-      <div class="h-block">
+      <div class="h-block reveal d1">
         <div class="h-label">ימים א'–ה'</div>
         <div class="h-value">10:00–21:00</div>
         <div class="h-sub">עד שנגמר הסחורה</div>
       </div>
-      <div class="h-block">
+      <div class="h-block reveal d2">
         <div class="h-label">יום שישי</div>
         <div class="h-value">09:30–14:30</div>
         <div class="h-sub">מגיעים מוקדם</div>
       </div>
-      <div class="h-block">
+      <div class="h-block reveal d3">
         <div class="h-label">שבת</div>
         <div class="h-value">סגור</div>
         <div class="h-sub">נתראה ביום ראשון</div>
@@ -690,13 +715,58 @@
       nav.classList.toggle('scrolled', window.scrollY > 50);
     }, { passive: true });
 
-    // Scroll reveal with stagger
-    const observer = new IntersectionObserver((entries) => {
+    // Scroll reveal — all types
+    const revealObs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); }
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          revealObs.unobserve(e.target);
+        }
       });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }, { threshold: 0.12, rootMargin: '0px 0px -32px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale')
+      .forEach(el => revealObs.observe(el));
+
+    // Counter animation for proof numbers
+    function animateCounter(el) {
+      const target = parseFloat(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      const isDecimal = String(target).includes('.');
+      const duration = 1200;
+      const start = performance.now();
+      el.classList.add('counted');
+      function tick(now) {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = target * eased;
+        el.textContent = (isDecimal ? val.toFixed(1) : Math.round(val)) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCounter(e.target);
+          counterObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.count-num').forEach(el => counterObs.observe(el));
+
+    // Parallax on hero video — subtle drift
+    const heroVid = document.querySelector('.hero-img-col video');
+    if (heroVid) {
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y < window.innerHeight * 1.2) {
+          heroVid.style.transform = `translateY(${y * 0.12}px)`;
+        }
+      }, { passive: true });
+    }
   </script>
 </body>
 </html>
